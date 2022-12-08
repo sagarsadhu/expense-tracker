@@ -21,7 +21,7 @@ class Cards(Base):
     name = Column(String(100))
     description = Column(String(200))
     card_type = Column(Integer)
-    balance = Column(Integer)
+    balance = Column(Float)
     created_at = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
@@ -34,7 +34,7 @@ class Incomes(Base):
     __tablename__ = 'incomes'
     id = Column(Integer, primary_key=True, index=True)
     income_type = Column(Integer)
-    amount = Column(Integer)
+    amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
     card_id = Column(Integer, ForeignKey('cards.id', ondelete='CASCADE'))
@@ -46,7 +46,7 @@ class Expenses(Base):
     __tablename__ = 'expenses'
     id = Column(Integer, primary_key=True, index=True)
     income_type = Column(Integer)
-    amount = Column(Integer)
+    amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
     card_id = Column(Integer, ForeignKey('cards.id', ondelete='CASCADE'))
