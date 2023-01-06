@@ -20,7 +20,7 @@ class Cards(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     description = Column(String(200))
-    card_type = Column(Integer)
+    card_type = Column(Integer, ForeignKey('cardtypes.id'))
     balance = Column(Float)
     created_at = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
@@ -33,7 +33,7 @@ class Cards(Base):
 class Incomes(Base):
     __tablename__ = 'incomes'
     id = Column(Integer, primary_key=True, index=True)
-    income_type = Column(Integer)
+    income_type = Column(Integer, ForeignKey('incometypes.id'))
     amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
@@ -45,7 +45,7 @@ class Incomes(Base):
 class Expenses(Base):
     __tablename__ = 'expenses'
     id = Column(Integer, primary_key=True, index=True)
-    income_type = Column(Integer)
+    expense_type = Column(Integer, ForeignKey('expensetypes.id'))
     amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
@@ -53,3 +53,23 @@ class Expenses(Base):
 
     cardowner = relationship('Cards', back_populates='expenses')
 
+
+class CardTypes(Base):
+    __tablename__ = 'cardtypes'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100))
+    description = Column(String(200))
+
+
+class IncomeTypes(Base):
+    __tablename__ = 'incometypes'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100))
+    description = Column(String(200))
+
+
+class ExpenseTypes(Base):
+    __tablename__ = 'expensetypes'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100))
+    description = Column(String(200))

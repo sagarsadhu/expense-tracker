@@ -43,11 +43,12 @@ async def read_all_by_user(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/add-card", response_class=HTMLResponse)
-async def add_new_card(request: Request):
+async def add_new_card(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse("add-card.html", {"request": request, "user": user})
+    cardtypes = db.query(models.CardTypes).all()
+    return templates.TemplateResponse("add-card.html", {"request": request, "user": user, "cardtypes": cardtypes})
 
 
 @router.post("/add-card", response_class=HTMLResponse)
@@ -55,7 +56,7 @@ async def create_card(
     request: Request,
     name: str = Form(...),
     description: str = Form(...),
-    card_type: str = Form(...),
+    card_type: int = Form(...),
     balance: float = Form(...),
     db: Session = Depends(get_db),
 ):
@@ -66,10 +67,7 @@ async def create_card(
     card_model = models.Cards()
     card_model.name = name
     card_model.description = description
-    card_type_int = 1
-    if card_type == "Credit":
-        card_type_int = 0
-    card_model.card_type = card_type_int
+    card_model.card_type = card_type
     card_model.balance = balance
     card_model.created_at = datetime.now()
     card_model.owner_id = user.get("id")
@@ -85,10 +83,10 @@ async def edit_card(request: Request, card_id: int, db: Session = Depends(get_db
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-
+    cardtypes = db.query(models.CardTypes).all()
     card = db.query(models.Cards).filter(models.Cards.id == card_id).first()
     return templates.TemplateResponse(
-        "edit-card.html", {"request": request, "card": card, "user": user}
+        "edit-card.html", {"request": request, "card": card, "cardtypes": cardtypes,"user": user}
     )
 
 
@@ -98,7 +96,7 @@ async def edit_card_commit(
     card_id: int,
     name: str = Form(...),
     description: str = Form(...),
-    card_type: str = Form(...),
+    card_type: int = Form(...),
     balance: float = Form(...),
     db: Session = Depends(get_db),
 ):
@@ -110,10 +108,7 @@ async def edit_card_commit(
 
     card_model.name = name
     card_model.description = description
-    card_type_int = 1
-    if card_type == "Credit":
-        card_type_int = 0
-    card_model.card_type = card_type_int
+    card_model.card_type = card_type
     card_model.balance = balance
 
     db.add(card_model)
@@ -122,7 +117,7 @@ async def edit_card_commit(
     return RedirectResponse(url="/cards", status_code=status.HTTP_302_FOUND)
 
 
-@router.get("delete/{card_id}")
+@router.get("/delete/{card_id}")
 async def delete_card(request: Request, card_id: int, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:

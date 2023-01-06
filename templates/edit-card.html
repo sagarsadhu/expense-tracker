@@ -18,16 +18,17 @@
           <div class="form-group">
             <label>Card Type</label>
             <select class="form-control" name="card_type" required>
-              <option {% if card.card_type == 0 %} selected="selected" {% endif %}>Credit</option>
-              <option {% if card.card_type == 1 %} selected="selected" {% endif %}>Debit</option>
+              {% for cardtype in cardtypes %}
+                <option value="{{cardtype.id}}" {% if card.card_type == cardtype.id %} selected="selected" {% endif %}>{{cardtype.name}}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="form-group">
             <label>Balance</label>
             <input type="number" class="form-control" name="balance" step="any" value="{{card.balance}}"required>
           </div>
-          <button type="submit" class="btn btn-primary">Edit card</button>
-          <button onclick="window.location.href='/cards/delete/{{card.id}}'" type="button" class="btn btn-danger" >Delete</button>
+          <button type="submit" class="btn btn-primary">Save Details</button>
+          <button onclick="window.location.href='/cards/delete/{{card.id}}'" type="button" class="btn btn-danger" >Delete Card</button>
         </form>
       </div>
     </div>

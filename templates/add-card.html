@@ -18,8 +18,9 @@
         <div class="form-group">
           <label>Card Type</label>
           <select class="form-control" name="card_type" required>
-            <option>Credit</option>
-            <option>Debit</option>
+            {% for cardtype in cardtypes %}
+              <option value="{{cardtype.id}}">{{cardtype.name}}</option>
+            {% endfor %}
           </select>
         </div>
         <div class="form-group">
