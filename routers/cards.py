@@ -38,7 +38,7 @@ async def read_all_by_user(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     cards = db.query(models.Cards).filter(models.Cards.owner_id == user.get("id")).all()
     return templates.TemplateResponse(
-        "index.html", {"request": request, "cards": cards, "user": user}
+        "cards.html", {"request": request, "cards": cards, "user": user}
     )
 
 

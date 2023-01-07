@@ -120,6 +120,13 @@ async def login_for_access_token(
 
     return True
 
+@router.get("/home", response_class=HTMLResponse)
+async def home_page(request: Request):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse('index.html', {'request': request, 'user': user})
+
 
 @router.get("/", response_class=HTMLResponse)
 async def authentication_page(request: Request):
@@ -131,7 +138,7 @@ async def login(request: Request, db: Session = Depends(get_db)):
     try:
         form = LoginForm(request)
         await form.create_oath_form()
-        response = RedirectResponse(url='/cards', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(url='/auth/home', status_code=status.HTTP_302_FOUND)
         validate_user_cookie = await login_for_access_token(response=response
                                                             , form_data=form, db=db)
 

@@ -2,57 +2,23 @@
 
 <div class="container">
     <div class="card text-center">
-        <div class="card-header">
-            All your cards 
-        </div>
-
-        {% if cards %}
-
         <div class="card-body">
             <h5 class="card-title">List of your cards</h5>
             <p class="card-text">Information regarding all the cards linked to your account</p>
         </div>
-
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                   <th scope="col">#</th>
-                   <th scope="col">Card Name</th>
-                   <th scope="col">Balance</th>
-                   <th scope="col">Actions</th>
-                </tr>
-            </thead>
-
-
-            <tbody>
-                {% for card in cards %}
-                <tr class="pointer">
-                    <td>{{loop.index}}</td>
-                    <td>{{card.name}}</td>
-                    <td>{{card.balance}}</td>
-                    <td>
-                        <button onclick="window.location.href='edit-card/{{card.id}}'" type="button" class="btn btn-primary">Edit</button>
-                        <button onclick="window.location.href='#'" type="button" class="btn btn-info">Transactions</button>
-                    </td>
-                </tr>
-                
-                {% endfor %}
-
-            </tbody>
-        </table>
-
-
-        {% else %}
-
-        <div class="card-body">
-            <h5 class="card-title">No cards available</h5>
-            <p class="card-text">Please add a new card using the button below</p>
+        <div class="list-group">
+            <button type="button" class="list-group-item list-group-item-action list-group-item-secondary" aria-current="true">
+                Add your custom income type for transactions
+            </button>
+            <button type="button" class="list-group-item list-group-item-action list-group-item-secondary">
+                Add your custom expense type for transactions
+            </button>
+            <button type="button" class="list-group-item list-group-item-action list-group-item-secondary">
+                Add your custom card type for transactions
+            </button>
+            <button onclick="window.location.href='/cards'" type="button" class="list-group-item list-group-item-action list-group-item-secondary">
+                Go to your cards
+            </button>
         </div>
-
-        {% endif %}
     </div>
-        <div class="card-footer text-muted">
-            <a class="btn btn-primary" href="add-card">Add a new Card</a>
-        </div>
-
 </div>
