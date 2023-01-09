@@ -36,7 +36,7 @@ async def read_all_by_user(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    cards = db.query(models.Cards).filter(models.Cards.owner_id == user.get("id")).all()
+    cards = db.query(models.Accounts).filter(models.Accounts.owner_id == user.get("id")).all()
     return templates.TemplateResponse(
         "cards.html", {"request": request, "cards": cards, "user": user}
     )
@@ -47,7 +47,7 @@ async def add_new_card(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    cardtypes = db.query(models.CardTypes).all()
+    cardtypes = db.query(models.AccountTypes).all()
     return templates.TemplateResponse("add-card.html", {"request": request, "user": user, "cardtypes": cardtypes})
 
 
@@ -64,7 +64,7 @@ async def create_card(
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
 
-    card_model = models.Cards()
+    card_model = models.Accounts()
     card_model.name = name
     card_model.description = description
     card_model.card_type = card_type
@@ -83,8 +83,8 @@ async def edit_card(request: Request, card_id: int, db: Session = Depends(get_db
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    cardtypes = db.query(models.CardTypes).all()
-    card = db.query(models.Cards).filter(models.Cards.id == card_id).first()
+    cardtypes = db.query(models.AccountTypes).all()
+    card = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
     return templates.TemplateResponse(
         "edit-card.html", {"request": request, "card": card, "cardtypes": cardtypes,"user": user}
     )
@@ -104,7 +104,7 @@ async def edit_card_commit(
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
 
-    card_model = db.query(models.Cards).filter(models.Cards.id == card_id).first()
+    card_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
 
     card_model.name = name
     card_model.description = description
@@ -124,16 +124,16 @@ async def delete_card(request: Request, card_id: int, db: Session = Depends(get_
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
 
     card_model = (
-        db.query(models.Cards)
-        .filter(models.Cards.id == card_id)
-        .filter(models.Cards.owner_id == user.get("id"))
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == card_id)
+        .filter(models.Accounts.owner_id == user.get("id"))
         .first()
     )
 
     if card_model is None:
         return RedirectResponse(url="/cards", status_code=status.HTTP_302_FOUND)
 
-    db.query(models.Cards).filter(models.Cards.id == card_id).delete()
+    db.query(models.Accounts).filter(models.Accounts.id == card_id).delete()
 
     db.commit()
 

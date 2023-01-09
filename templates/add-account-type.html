@@ -1,0 +1,22 @@
+{% include 'layout.html' %}
+
+<div class="container">
+    <div class="card">
+      <div class="card-header">
+        Add a new account type by filling following details
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Add new account type</button>
+        </form>
+      </div>
+    </div>
+  </div>

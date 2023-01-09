@@ -1,0 +1,53 @@
+{% include 'layout.html' %}
+
+<div class="container">
+    <div class="card text-center">
+
+        {% if account_types %}
+
+        <div class="card-body">
+            <h5 class="card-title">List of your Account Types</h5>
+            <p class="card-text">Your account types could be credit card, debit card, wallet etc</p>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                   <th scope="col">#</th>
+                   <th scope="col">Account Name</th>
+                   <th scope="col">Description</th>
+                   <th scope="col">Actions</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                {% for account_type in account_types %}
+                <tr class="pointer">
+                    <td>{{loop.index}}</td>
+                    <td>{{account_type.name}}</td>
+                    <td>{{account_type.description}}</td>
+                    <td>
+                        <button onclick="window.location.href='edit-account-type/{{account_type.id}}'" type="button" class="btn btn-primary">Edit</button>
+                    </td>
+                </tr>
+                
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+
+        {% else %}
+
+        <div class="card-body">
+            <h5 class="card-title">No accounts available</h5>
+            <p class="card-text">Please add a new account type using the button below</p>
+        </div>
+
+        {% endif %}
+    </div>
+        <div class="card-footer text-muted">
+            <a class="btn btn-primary" href="add-account-type">Add a new account type</a>
+        </div>
+</div>

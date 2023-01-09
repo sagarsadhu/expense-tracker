@@ -13,52 +13,50 @@ class Users(Base):
     hashed_password = Column(String(200))
     is_active = Column(Boolean, default=True)
 
-    cards = relationship("Cards", back_populates='owner', cascade='all,delete', passive_deletes=all)
+    accounts = relationship("Accounts", back_populates='owner', cascade='all,delete', passive_deletes=all)
+    accounttypes = relationship("AccountTypes", back_populates='owner', cascade='all,delete', passive_deletes=all)
+    incometypes = relationship("IncomeTypes", back_populates='owner', cascade='all,delete', passive_deletes=all)
+    expensetypes = relationship("ExpenseTypes", back_populates='owner', cascade='all,delete', passive_deletes=all)
 
-class Cards(Base):
-    __tablename__ = 'cards'
+class Accounts(Base):
+    __tablename__ = 'accounts'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     description = Column(String(200))
-    card_type = Column(Integer, ForeignKey('cardtypes.id'))
+    card_type = Column(Integer, ForeignKey('accounttypes.id'))
     balance = Column(Float)
     created_at = Column(DateTime)
+    is_active = Column(Boolean, default=True)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
     
-    incomes = relationship('Incomes', back_populates='cardowner', cascade='all,delete', passive_deletes=all)
-    expenses = relationship('Expenses', back_populates='cardowner', cascade='all,delete', passive_deletes=all)
-    owner = relationship('Users', back_populates='cards')
+    transactions = relationship('Transactions', back_populates='accountowner', cascade='all,delete', passive_deletes=all)
+    owner = relationship('Users', back_populates='accounts')
 
-class Incomes(Base):
-    __tablename__ = 'incomes'
+class Transactions(Base):
+    __tablename__ = 'transactions'
     id = Column(Integer, primary_key=True, index=True)
-    income_type = Column(Integer, ForeignKey('incometypes.id'))
     amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
-    card_id = Column(Integer, ForeignKey('cards.id', ondelete='CASCADE'))
+    is_active = Column(Boolean, default=True)
+    is_income = Column(Boolean, default=None)
+    is_expense = Column(Boolean, default=None)
+    t_type = Column(String(100))
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'))
 
-    cardowner = relationship('Cards', back_populates='incomes')
-
-
-class Expenses(Base):
-    __tablename__ = 'expenses'
-    id = Column(Integer, primary_key=True, index=True)
-    expense_type = Column(Integer, ForeignKey('expensetypes.id'))
-    amount = Column(Float)
-    created_at = Column(DateTime)
-    modified_at = Column(DateTime)
-    card_id = Column(Integer, ForeignKey('cards.id', ondelete='CASCADE'))
-
-    cardowner = relationship('Cards', back_populates='expenses')
+    accountowner = relationship('Accounts', back_populates='transactions')
 
 
-class CardTypes(Base):
-    __tablename__ = 'cardtypes'
+class AccountTypes(Base):
+    __tablename__ = 'accounttypes'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     description = Column(String(200))
+    is_active = Column(Boolean, default=True)
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+
+    owner = relationship('Users', back_populates='accounttypes')
 
 
 class IncomeTypes(Base):
@@ -66,6 +64,10 @@ class IncomeTypes(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     description = Column(String(200))
+    is_active = Column(Boolean, default=True)
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+
+    owner = relationship('Users', back_populates='incometypes')
 
 
 class ExpenseTypes(Base):
@@ -73,3 +75,7 @@ class ExpenseTypes(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     description = Column(String(200))
+    is_active = Column(Boolean, default=True)
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+
+    owner = relationship('Users', back_populates='expensetypes')
