@@ -3,20 +3,20 @@
 <div class="container">
     <div class="card">
       <div class="card-header">
-        Edit your account type
+        Edit your {{cd_type}}
       </div>
       <div class="card-body">
         <form method="post">
           <div class="form-group">
             <label>Name</label>
-            <input type="text" class="form-control" name="name" value="{{account_type.name}}" required>
+            <input type="text" class="form-control" name="name" value="{{custom_data.name}}" required>
           </div>
           <div class="form-group">
             <label>Description</label>
-            <textarea name="description" class="form-control" rows="3" required>{{account_type.description}}</textarea>
+            <textarea name="description" class="form-control" rows="3" required>{{custom_data.description}}</textarea>
           </div>
           <button type="submit" class="btn btn-primary">Save Details</button>
-          <button onclick="window.location.href='/account-types/delete/{{account_type.id}}'" type="button" class="btn btn-danger" >Delete Account Type</button>
+          <button onclick="window.location.href='/custom-data/delete/{{cd_type}}/{{custom_data.id}}'" type="button" class="btn btn-danger" >Delete {{cd_type}}</button>
         </form>
       </div>
     </div>

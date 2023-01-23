@@ -4,7 +4,7 @@ from starlette.responses import RedirectResponse
 
 import models
 from database import engine
-from routers import account_types, auth, cards
+from routers import auth, cards, custom_data
 
 app = FastAPI()
 
@@ -17,9 +17,9 @@ async def root():
     return RedirectResponse(url='/cards', status_code=status.HTTP_302_FOUND)
 
 app.include_router(
-    account_types.router,
-    prefix='/account-types',
-    tags=['account-types'],
+    custom_data.router,
+    prefix='/custom-data',
+    tags=['custom-data'],
     responses={404: {"description": "Not found"}}
 )
 app.include_router(

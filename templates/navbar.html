@@ -7,8 +7,20 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 {% if user %}
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="/auth/home"> Home </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/custom-data/account-type"> Account Types </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/custom-data/income-type"> Income Types </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/custom-data/expense-type"> Expense Types </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cards"> Cards </a>
                 </li>
                 {% endif %}
             </ul>

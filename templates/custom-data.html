@@ -3,18 +3,18 @@
 <div class="container">
     <div class="card text-center">
 
-        {% if account_types %}
+        {% if custom_data %}
 
         <div class="card-body">
-            <h5 class="card-title">List of your Account Types</h5>
-            <p class="card-text">Your account types could be credit card, debit card, wallet etc</p>
+            <h5 class="card-title">List of your {{cd_type}}s</h5>
+            <!-- <p class="card-text">Your account types could be credit card, debit card, wallet etc</p> -->
         </div>
 
         <table class="table table-hover">
             <thead>
                 <tr>
                    <th scope="col">#</th>
-                   <th scope="col">Account Name</th>
+                   <th scope="col">{{cd_type}} Name</th>
                    <th scope="col">Description</th>
                    <th scope="col">Actions</th>
                 </tr>
@@ -22,13 +22,13 @@
 
 
             <tbody>
-                {% for account_type in account_types %}
+                {% for custom in custom_data %}
                 <tr class="pointer">
                     <td>{{loop.index}}</td>
-                    <td>{{account_type.name}}</td>
-                    <td>{{account_type.description}}</td>
+                    <td>{{custom.name}}</td>
+                    <td>{{custom.description}}</td>
                     <td>
-                        <button onclick="window.location.href='edit-account-type/{{account_type.id}}'" type="button" class="btn btn-primary">Edit</button>
+                        <button onclick="window.location.href='edit-custom-data/{{cd_type}}/{{custom.id}}'" type="button" class="btn btn-primary">Edit</button>
                     </td>
                 </tr>
                 
@@ -41,13 +41,13 @@
         {% else %}
 
         <div class="card-body">
-            <h5 class="card-title">No accounts available</h5>
-            <p class="card-text">Please add a new account type using the button below</p>
+            <h5 class="card-title">No {{cd_type}}s available</h5>
+            <p class="card-text">Please add a new {{cd_type}} using the button below</p>
         </div>
 
         {% endif %}
     </div>
         <div class="card-footer text-muted">
-            <a class="btn btn-primary" href="add-account-type">Add a new account type</a>
+            <a class="btn btn-primary" href="add-custom-data/{{cd_type}}">Add a new {{cd_type}}</a>
         </div>
 </div>
