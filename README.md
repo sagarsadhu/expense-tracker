@@ -20,5 +20,5 @@ Based on your account type, a card or account can be created in which you can ad
 
 ### pending things
 
-Transactions
-Analytics from transactions
+* Transactions
+* Analytics from transactions
