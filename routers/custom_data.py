@@ -15,7 +15,6 @@ from database import engine, SessionLocal
 from .auth import get_current_user
 
 
-
 router = APIRouter()
 
 models.Base.metadata.create_all(bind=engine)
@@ -32,19 +31,39 @@ def get_db():
 
 
 @router.get("/{cd_type}", response_class=HTMLResponse)
-async def read_all_by_user(request: Request, cd_type: str, db: Session = Depends(get_db)):
+async def read_all_by_user(
+    request: Request, cd_type: str, db: Session = Depends(get_db)
+):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     custom_data = {}
-    if cd_type == 'account-type':
-        custom_data = db.query(models.AccountTypes).filter(models.AccountTypes.owner_id == user.get("id")).all()
-    elif cd_type == 'income-type':
-        custom_data = db.query(models.IncomeTypes).filter(models.IncomeTypes.owner_id == user.get("id")).all()
-    elif cd_type == 'expense-type':
-        custom_data = db.query(models.ExpenseTypes).filter(models.ExpenseTypes.owner_id == user.get("id")).all()
+    if cd_type == "account-type":
+        custom_data = (
+            db.query(models.AccountTypes)
+            .filter(models.AccountTypes.owner_id == user.get("id"))
+            .all()
+        )
+    elif cd_type == "income-type":
+        custom_data = (
+            db.query(models.IncomeTypes)
+            .filter(models.IncomeTypes.owner_id == user.get("id"))
+            .all()
+        )
+    elif cd_type == "expense-type":
+        custom_data = (
+            db.query(models.ExpenseTypes)
+            .filter(models.ExpenseTypes.owner_id == user.get("id"))
+            .all()
+        )
     return templates.TemplateResponse(
-        "custom-data.html", {"request": request, "custom_data": custom_data, "cd_type": cd_type, "user": user}
+        "custom-data.html",
+        {
+            "request": request,
+            "custom_data": custom_data,
+            "cd_type": cd_type,
+            "user": user,
+        },
     )
 
 
@@ -53,7 +72,9 @@ async def add_new_custom_data(request: Request, cd_type: str):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse("add-custom-data.html", {"request": request, "cd_type": cd_type, "user": user})
+    return templates.TemplateResponse(
+        "add-custom-data.html", {"request": request, "cd_type": cd_type, "user": user}
+    )
 
 
 @router.post("/add-custom-data/{cd_type}", response_class=HTMLResponse)
@@ -67,14 +88,13 @@ async def create_custom_data(
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    
-    if cd_type == 'account-type':
-        custom_data_model = models.AccountTypes()
-    elif cd_type == 'income-type':
-        custom_data_model = models.IncomeTypes()
-    elif cd_type == 'expense-type':
-        custom_data_model = models.ExpenseTypes()
 
+    if cd_type == "account-type":
+        custom_data_model = models.AccountTypes()
+    elif cd_type == "income-type":
+        custom_data_model = models.IncomeTypes()
+    elif cd_type == "expense-type":
+        custom_data_model = models.ExpenseTypes()
 
     custom_data_model.name = name
     custom_data_model.description = description
@@ -83,23 +103,43 @@ async def create_custom_data(
     db.add(custom_data_model)
     db.commit()
 
-    return RedirectResponse(url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(
+        url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND
+    )
 
 
 @router.get("/edit-custom-data/{cd_type}/{cd_id}", response_class=HTMLResponse)
-async def add_new_card(request: Request, cd_type: str, cd_id: int, db: Session = Depends(get_db), ):
+async def add_new_card(
+    request: Request,
+    cd_type: str,
+    cd_id: int,
+    db: Session = Depends(get_db),
+):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     cd_model = {}
-    if cd_type == 'account-type':
-        cd_model = db.query(models.AccountTypes).filter(models.AccountTypes.id == cd_id).first()
-    elif cd_type == 'income-type':
-        cd_model = db.query(models.IncomeTypes).filter(models.IncomeTypes.id == cd_id).first()
-    elif cd_type == 'expense-type':
-        cd_model = db.query(models.ExpenseTypes).filter(models.ExpenseTypes.id == cd_id).first()
+    if cd_type == "account-type":
+        cd_model = (
+            db.query(models.AccountTypes)
+            .filter(models.AccountTypes.id == cd_id)
+            .first()
+        )
+    elif cd_type == "income-type":
+        cd_model = (
+            db.query(models.IncomeTypes).filter(models.IncomeTypes.id == cd_id).first()
+        )
+    elif cd_type == "expense-type":
+        cd_model = (
+            db.query(models.ExpenseTypes)
+            .filter(models.ExpenseTypes.id == cd_id)
+            .first()
+        )
 
-    return templates.TemplateResponse("edit-custom-data.html", {"request": request, "custom_data": cd_model, "cd_type": cd_type ,"user": user})
+    return templates.TemplateResponse(
+        "edit-custom-data.html",
+        {"request": request, "custom_data": cd_model, "cd_type": cd_type, "user": user},
+    )
 
 
 @router.post("/edit-custom-data/{cd_type}/{cd_id}", response_class=HTMLResponse)
@@ -115,12 +155,22 @@ async def edit_card_commit(
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
 
-    if cd_type == 'account-type':
-        cd_model = db.query(models.AccountTypes).filter(models.AccountTypes.id == cd_id).first()
-    elif cd_type == 'income-type':
-        cd_model = db.query(models.IncomeTypes).filter(models.IncomeTypes.id == cd_id).first()
-    elif cd_type == 'expense-type':
-        cd_model = db.query(models.ExpenseTypes).filter(models.ExpenseTypes.id == cd_id).first()
+    if cd_type == "account-type":
+        cd_model = (
+            db.query(models.AccountTypes)
+            .filter(models.AccountTypes.id == cd_id)
+            .first()
+        )
+    elif cd_type == "income-type":
+        cd_model = (
+            db.query(models.IncomeTypes).filter(models.IncomeTypes.id == cd_id).first()
+        )
+    elif cd_type == "expense-type":
+        cd_model = (
+            db.query(models.ExpenseTypes)
+            .filter(models.ExpenseTypes.id == cd_id)
+            .first()
+        )
 
     cd_model.name = name
     cd_model.description = description
@@ -128,20 +178,24 @@ async def edit_card_commit(
     db.add(cd_model)
     db.commit()
 
-    return RedirectResponse(url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(
+        url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND
+    )
 
 
 @router.get("/delete/{cd_type}/{cd_id}")
-async def delete_card(request: Request, cd_type: str, cd_id: int, db: Session = Depends(get_db)):
+async def delete_card(
+    request: Request, cd_type: str, cd_id: int, db: Session = Depends(get_db)
+):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    
-    if cd_type == 'account-type':
+
+    if cd_type == "account-type":
         cd_model = models.AccountTypes
-    elif cd_type == 'income-type':
+    elif cd_type == "income-type":
         cd_model = models.IncomeTypes
-    elif cd_type == 'expense-type':
+    elif cd_type == "expense-type":
         cd_model = models.ExpenseTypes
 
     cd_check_model = (
@@ -158,4 +212,6 @@ async def delete_card(request: Request, cd_type: str, cd_id: int, db: Session = 
 
     db.commit()
 
-    return RedirectResponse(url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(
+        url=f"/custom-data/{cd_type}", status_code=status.HTTP_302_FOUND
+    )

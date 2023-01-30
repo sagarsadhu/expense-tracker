@@ -1,7 +1,8 @@
-from sqlalchemy import Boolean, Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, Float, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from database import Base
 
+IMPORTANCE = ('Essential', 'Have to have', 'Nice to have', 'Should not have')
 
 class Users(Base):
     __tablename__ = 'users'
@@ -43,6 +44,8 @@ class Transactions(Base):
     is_income = Column(Boolean, default=None)
     is_expense = Column(Boolean, default=None)
     t_type = Column(String(100))
+    importance = Column(Enum('Essential', 'Have to have', 'Nice to have', 'Should not have', name='importance_enum'))
+    owner_id = Column(Integer, ForeignKey('users.id'))
     account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'))
 
     accountowner = relationship('Accounts', back_populates='transactions')

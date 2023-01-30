@@ -75,7 +75,7 @@ def authenticate_user(username: str, password: str, db):
 
 
 def create_access_token(
-        username: str, user_id: int, expires_delta: Optional[timedelta] = None
+    username: str, user_id: int, expires_delta: Optional[timedelta] = None
 ):
     encode = {"sub": username, "id": user_id}
     if expires_delta:
@@ -106,7 +106,9 @@ async def get_current_user(request: Request):
 
 @router.post("/token")
 async def login_for_access_token(
-        response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
 ):
     user = authenticate_user(form_data.username, form_data.password, db)
 
@@ -120,17 +122,18 @@ async def login_for_access_token(
 
     return True
 
+
 @router.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse('index.html', {'request': request, 'user': user})
+    return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
 
 @router.get("/", response_class=HTMLResponse)
 async def authentication_page(request: Request):
-    return templates.TemplateResponse('login.html', {'request': request})
+    return templates.TemplateResponse("login.html", {"request": request})
 
 
 @router.post("/", response_class=HTMLResponse)
@@ -138,42 +141,60 @@ async def login(request: Request, db: Session = Depends(get_db)):
     try:
         form = LoginForm(request)
         await form.create_oath_form()
-        response = RedirectResponse(url='/auth/home', status_code=status.HTTP_302_FOUND)
-        validate_user_cookie = await login_for_access_token(response=response
-                                                            , form_data=form, db=db)
+        response = RedirectResponse(url="/auth/home", status_code=status.HTTP_302_FOUND)
+        validate_user_cookie = await login_for_access_token(
+            response=response, form_data=form, db=db
+        )
 
         if validate_user_cookie is False:
             msg = "Incorrect Username or Password"
-            return templates.TemplateResponse("login.html", {"request": request, "msg": msg})
+            return templates.TemplateResponse(
+                "login.html", {"request": request, "msg": msg}
+            )
         return response
     except HTTPException:
         msg = "Unknown Error"
-        return templates.TemplateResponse("login.html", {"request": request, "msg": msg})
+        return templates.TemplateResponse(
+            "login.html", {"request": request, "msg": msg}
+        )
 
 
 @router.get("/logout")
 async def logout(request: Request):
     msg = "Logout Successful"
-    response = templates.TemplateResponse("login.html", {"request": request, "msg": msg})
+    response = templates.TemplateResponse(
+        "login.html", {"request": request, "msg": msg}
+    )
     response.delete_cookie(key="access_token")
     return response
 
 
 @router.get("/register", response_class=HTMLResponse)
 async def register(request: Request):
-    return templates.TemplateResponse('register.html', {'request': request})
+    return templates.TemplateResponse("register.html", {"request": request})
 
 
 @router.post("/register", response_class=HTMLResponse)
-async def register_user(request: Request, email: str = Form(...), username: str = Form(...), firstname: str = Form(...),
-                        lastname: str = Form(...), password: str = Form(...), password2: str = Form(...),
-                        db: Session = Depends(get_db)):
-    validation1 = db.query(models.Users).filter(models.Users.username == username).first()
+async def register_user(
+    request: Request,
+    email: str = Form(...),
+    username: str = Form(...),
+    firstname: str = Form(...),
+    lastname: str = Form(...),
+    password: str = Form(...),
+    password2: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    validation1 = (
+        db.query(models.Users).filter(models.Users.username == username).first()
+    )
     validation2 = db.query(models.Users).filter(models.Users.email == email).first()
 
     if password != password2 or validation1 is not None or validation2 is not None:
         msg = "Invalid registration request"
-        return templates.TemplateResponse("register.html", {"request": request, "msg": msg})
+        return templates.TemplateResponse(
+            "register.html", {"request": request, "msg": msg}
+        )
 
     user_model = models.Users()
     user_model.username = username
@@ -189,7 +210,7 @@ async def register_user(request: Request, email: str = Form(...), username: str 
     db.commit()
 
     msg = "User successfully created"
-    return templates.TemplateResponse('login.html', {"request": request, "msg": msg})
+    return templates.TemplateResponse("login.html", {"request": request, "msg": msg})
 
 
 @router.get("/change-password", response_class=HTMLResponse)
@@ -197,12 +218,19 @@ async def change_password(request: Request):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse('change-password.html', {'request': request, 'user': user})
+    return templates.TemplateResponse(
+        "change-password.html", {"request": request, "user": user}
+    )
 
 
 @router.post("/change-password", response_class=HTMLResponse)
-async def change_password_user(request: Request, email: str = Form(...), password: str = Form(...),
-                               password2: str = Form(...), db: Session = Depends(get_db)):
+async def change_password_user(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    password2: str = Form(...),
+    db: Session = Depends(get_db),
+):
     user = await get_current_user(request)
     if user is None:
         if user is None:
@@ -210,9 +238,14 @@ async def change_password_user(request: Request, email: str = Form(...), passwor
 
     user_model = db.query(models.Users).filter(models.Users.username == email).first()
 
-    if user_model is None or verify_password(password, user_model.hashed_password) is False:
+    if (
+        user_model is None
+        or verify_password(password, user_model.hashed_password) is False
+    ):
         msg = "Incorrect Username or Password"
-        return templates.TemplateResponse("change-password.html", {"request": request, 'user': user, "msg": msg})
+        return templates.TemplateResponse(
+            "change-password.html", {"request": request, "user": user, "msg": msg}
+        )
 
     hash_password = get_password_hash(password2)
 
@@ -222,7 +255,8 @@ async def change_password_user(request: Request, email: str = Form(...), passwor
     db.commit()
 
     msg = "Password Changed Successfully"
-    response = templates.TemplateResponse('login.html', {"request": request, "msg": msg})
+    response = templates.TemplateResponse(
+        "login.html", {"request": request, "msg": msg}
+    )
     response.delete_cookie("access_token")
     return response
-

@@ -15,7 +15,6 @@ from database import engine, SessionLocal
 from .auth import get_current_user
 
 
-
 router = APIRouter()
 
 models.Base.metadata.create_all(bind=engine)
@@ -36,7 +35,11 @@ async def read_all_by_user(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    cards = db.query(models.Accounts).filter(models.Accounts.owner_id == user.get("id")).all()
+    cards = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.owner_id == user.get("id"))
+        .all()
+    )
     return templates.TemplateResponse(
         "cards.html", {"request": request, "cards": cards, "user": user}
     )
@@ -48,7 +51,9 @@ async def add_new_card(request: Request, db: Session = Depends(get_db)):
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     cardtypes = db.query(models.AccountTypes).all()
-    return templates.TemplateResponse("add-card.html", {"request": request, "user": user, "cardtypes": cardtypes})
+    return templates.TemplateResponse(
+        "add-card.html", {"request": request, "user": user, "cardtypes": cardtypes}
+    )
 
 
 @router.post("/add-card", response_class=HTMLResponse)
@@ -86,7 +91,8 @@ async def edit_card(request: Request, card_id: int, db: Session = Depends(get_db
     cardtypes = db.query(models.AccountTypes).all()
     card = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
     return templates.TemplateResponse(
-        "edit-card.html", {"request": request, "card": card, "cardtypes": cardtypes,"user": user}
+        "edit-card.html",
+        {"request": request, "card": card, "cardtypes": cardtypes, "user": user},
     )
 
 
