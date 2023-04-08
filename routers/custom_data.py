@@ -42,18 +42,21 @@ async def read_all_by_user(
         custom_data = (
             db.query(models.AccountTypes)
             .filter(models.AccountTypes.owner_id == user.get("id"))
+            .filter(models.AccountTypes.is_active == True)
             .all()
         )
     elif cd_type == "income-type":
         custom_data = (
             db.query(models.IncomeTypes)
             .filter(models.IncomeTypes.owner_id == user.get("id"))
+            .filter(models.IncomeTypes.is_active == True)
             .all()
         )
     elif cd_type == "expense-type":
         custom_data = (
             db.query(models.ExpenseTypes)
             .filter(models.ExpenseTypes.owner_id == user.get("id"))
+            .filter(models.ExpenseTypes.is_active == True)
             .all()
         )
     return templates.TemplateResponse(
@@ -99,6 +102,8 @@ async def create_custom_data(
     custom_data_model.name = name
     custom_data_model.description = description
     custom_data_model.owner_id = user.get("id")
+    custom_data_model.created_at = datetime.now()
+    custom_data_model.modified_at = datetime.now()
 
     db.add(custom_data_model)
     db.commit()
@@ -174,6 +179,7 @@ async def edit_card_commit(
 
     cd_model.name = name
     cd_model.description = description
+    cd_model.modified_at = datetime.now()
 
     db.add(cd_model)
     db.commit()
@@ -208,8 +214,10 @@ async def delete_card(
     if cd_check_model is None:
         return RedirectResponse(url="/cards", status_code=status.HTTP_302_FOUND)
 
-    db.query(cd_model).filter(cd_model.id == cd_id).delete()
+    cd_check_model.is_active = False
+    cd_check_model.modified_at = datetime.now()
 
+    db.add(cd_check_model)
     db.commit()
 
     return RedirectResponse(

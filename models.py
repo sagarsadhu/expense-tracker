@@ -13,6 +13,8 @@ class Users(Base):
     last_name = Column(String(45), unique=True, index=True)
     hashed_password = Column(String(200))
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+    modified_at = Column(DateTime)
 
     accounts = relationship("Accounts", back_populates='owner', cascade='all,delete', passive_deletes=all)
     accounttypes = relationship("AccountTypes", back_populates='owner', cascade='all,delete', passive_deletes=all)
@@ -27,28 +29,43 @@ class Accounts(Base):
     card_type = Column(Integer, ForeignKey('accounttypes.id'))
     balance = Column(Float)
     created_at = Column(DateTime)
+    modified_at = Column(DateTime)
     is_active = Column(Boolean, default=True)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
-    
-    transactions = relationship('Transactions', back_populates='accountowner', cascade='all,delete', passive_deletes=all)
+    incomes = relationship('Incomes', back_populates='accountowner', cascade='all,delete', passive_deletes=all)
+    expenses = relationship('Expenses', back_populates='accountowner', cascade='all,delete', passive_deletes=all)
     owner = relationship('Users', back_populates='accounts')
 
-class Transactions(Base):
-    __tablename__ = 'transactions'
+
+class Incomes(Base):
+    __tablename__ = 'incomes'
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float)
     created_at = Column(DateTime)
     modified_at = Column(DateTime)
     is_active = Column(Boolean, default=True)
-    is_income = Column(Boolean, default=None)
-    is_expense = Column(Boolean, default=None)
     t_type = Column(String(100))
+    description = Column(String(200))
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'))
+
+    accountowner = relationship('Accounts', back_populates='incomes')
+
+class Expenses(Base):
+    __tablename__ = 'expenses'
+    id = Column(Integer, primary_key=True, index=True)
+    amount = Column(Float)
+    created_at = Column(DateTime)
+    modified_at = Column(DateTime)
+    is_active = Column(Boolean, default=True)
+    t_type = Column(String(100))
+    description = Column(String(200))
     importance = Column(Enum('Essential', 'Have to have', 'Nice to have', 'Should not have', name='importance_enum'))
     owner_id = Column(Integer, ForeignKey('users.id'))
     account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'))
 
-    accountowner = relationship('Accounts', back_populates='transactions')
+    accountowner = relationship('Accounts', back_populates='expenses')
 
 
 class AccountTypes(Base):
@@ -57,6 +74,8 @@ class AccountTypes(Base):
     name = Column(String(100))
     description = Column(String(200))
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+    modified_at = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
     owner = relationship('Users', back_populates='accounttypes')
@@ -68,6 +87,8 @@ class IncomeTypes(Base):
     name = Column(String(100))
     description = Column(String(200))
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+    modified_at = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
     owner = relationship('Users', back_populates='incometypes')
@@ -79,6 +100,8 @@ class ExpenseTypes(Base):
     name = Column(String(100))
     description = Column(String(200))
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+    modified_at = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
     owner = relationship('Users', back_populates='expensetypes')

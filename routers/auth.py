@@ -205,6 +205,8 @@ async def register_user(
     hash_password = get_password_hash(password)
     user_model.hashed_password = hash_password
     user_model.is_active = True
+    user_model.created_at = datetime.now()
+    user_model.modified_at = datetime.now()
 
     db.add(user_model)
     db.commit()
@@ -250,6 +252,7 @@ async def change_password_user(
     hash_password = get_password_hash(password2)
 
     user_model.hashed_password = hash_password
+    user_model.modified_at = datetime.now()
 
     db.add(user_model)
     db.commit()

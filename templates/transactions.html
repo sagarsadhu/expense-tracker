@@ -3,33 +3,35 @@
 <div class="container">
     <div class="card text-center">
         <div class="card-header">
-            All your transactions 
+            All your Income related transactions 
         </div>
 
-        {% if cards %}
+        {% if incomes %}
 
         <div class="card-body">
-            <h5 class="card-title">List of your cards</h5>
-            <p class="card-text">Information regarding all the cards linked to your account</p>
+            <h5 class="card-title">List of your Income related transactions</h5>
+            <p class="card-text">Information regarding all the transactions linked to your account</p>
         </div>
 
         <table class="table table-hover">
             <thead>
                 <tr>
                    <th scope="col">#</th>
-                   <th scope="col">Card Name</th>
-                   <th scope="col">Balance</th>
+                   <th scope="col">Income Type</th>
+                   <th scope="col">Description</th>
+                   <th scope="col">Amount</th>
                    <th scope="col">Actions</th>
                 </tr>
             </thead>
 
 
             <tbody>
-                {% for card in cards %}
+                {% for income in incomes %}
                 <tr class="pointer">
                     <td>{{loop.index}}</td>
-                    <td>{{card.name}}</td>
-                    <td>{{card.balance}}</td>
+                    <td>{{income.t_type}}</td>
+                    <td>{{income.description}}</td>
+                    <td>{{income.amount}}</td>
                     <td>
                         <button onclick="window.location.href='edit-card/{{card.id}}'" type="button" class="btn btn-primary">Edit</button>
                         <button type="button" class="btn btn-info"><a style="text-decoration: none;color: white" href="/transactions/{{card.id}}"> Transactions </a></button>
@@ -45,14 +47,72 @@
         {% else %}
 
         <div class="card-body">
-            <h5 class="card-title">No cards available</h5>
-            <p class="card-text">Please add a new card using the button below</p>
+            <h5 class="card-title">No income transaction available</h5>
+            <p class="card-text">Please add new income transaction using the button below</p>
         </div>
 
         {% endif %}
     </div>
         <div class="card-footer text-muted">
-            <a class="btn btn-primary" href="add-card">Add a new Card</a>
+            <a class="btn btn-primary" href="{{card_id}}/add-income">Add a new income</a>
         </div>
+
+</div>
+<div class="container">
+        <div class="card text-center">
+            <div class="card-header">
+                All your Expense related transactions 
+            </div>
+    
+            {% if expenses %}
+    
+            <div class="card-body">
+                <h5 class="card-title">List of your Expense related transactions</h5>
+                <p class="card-text">Information regarding all the transactions linked to your account</p>
+            </div>
+    
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                       <th scope="col">#</th>
+                       <th scope="col">Expense Type</th>
+                       <th scope="col">Description</th>
+                       <th scope="col">Amount</th>
+                       <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+    
+    
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr class="pointer">
+                        <td>{{loop.index}}</td>
+                        <td>{{expense.t_type}}</td>
+                        <td>{{expense.description}}</td>
+                        <td>{{expense.amount}}</td>
+                        <td>
+                            <button onclick="window.location.href='edit-card/{{card.id}}'" type="button" class="btn btn-primary">Edit</button>
+                            <button type="button" class="btn btn-info"><a style="text-decoration: none;color: white" href="/transactions/{{card.id}}"> Transactions </a></button>
+                        </td>
+                    </tr>
+                    
+                    {% endfor %}
+    
+                </tbody>
+            </table>
+    
+    
+            {% else %}
+    
+            <div class="card-body">
+                <h5 class="card-title">No expense transaction available</h5>
+                <p class="card-text">Please add new expense transaction using the button below</p>
+            </div>
+    
+            {% endif %}
+        </div>
+            <div class="card-footer text-muted">
+                <a class="btn btn-primary" href="{{card_id}}/add-expense">Add a new expense</a>
+            </div>
 
 </div>

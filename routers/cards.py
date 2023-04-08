@@ -38,6 +38,7 @@ async def read_all_by_user(request: Request, db: Session = Depends(get_db)):
     cards = (
         db.query(models.Accounts)
         .filter(models.Accounts.owner_id == user.get("id"))
+        .filter(models.Accounts.is_active == True)
         .all()
     )
     return templates.TemplateResponse(
@@ -75,6 +76,7 @@ async def create_card(
     card_model.card_type = card_type
     card_model.balance = balance
     card_model.created_at = datetime.now()
+    card_model.modified_at = datetime.now()
     card_model.owner_id = user.get("id")
 
     db.add(card_model)
@@ -116,6 +118,7 @@ async def edit_card_commit(
     card_model.description = description
     card_model.card_type = card_type
     card_model.balance = balance
+    card_model.modified_at = datetime.now()
 
     db.add(card_model)
     db.commit()
@@ -139,8 +142,10 @@ async def delete_card(request: Request, card_id: int, db: Session = Depends(get_
     if card_model is None:
         return RedirectResponse(url="/cards", status_code=status.HTTP_302_FOUND)
 
-    db.query(models.Accounts).filter(models.Accounts.id == card_id).delete()
+    card_model.is_active = False
+    card_model.modifed_at = datetime.now()
 
+    db.add(card_model)
     db.commit()
 
     return RedirectResponse(url="/cards", status_code=status.HTTP_302_FOUND)

@@ -30,24 +30,66 @@ def get_db():
         db.close()
 
 
-@router.get("/{card_id}", response_class=HTMLResponse)
+@router.get("/card/{card_id}", response_class=HTMLResponse)
 async def read_all_by_user(
     request: Request, card_id: int, db: Session = Depends(get_db)
 ):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    transactions = (
-        db.query(models.Transactions)
-        .filter(models.Transactions.account_id == card_id)
-        .filter(models.Transactions.owner_id == user.get("id"))
+    incomes = (
+        db.query(models.Incomes)
+        .filter(models.Incomes.account_id == card_id)
+        .filter(models.Incomes.owner_id == user.get("id"))
+        .all()
+    )
+    expenses = (
+        db.query(models.Expenses)
+        .filter(models.Expenses.account_id == card_id)
+        .filter(models.Expenses.owner_id == user.get("id"))
         .all()
     )
     return templates.TemplateResponse(
         "transactions.html",
         {
             "request": request,
-            "transactions": transactions,
+            "incomes": incomes,
+            "expenses": expenses,
             "user": user,
+            "card_id": card_id
         },
     )
+
+
+@router.get("/card/{card_id}/add-transaction/{t_type}", response_class=HTMLResponse)
+async def add_new_transaction(request: Request, card_id: int, t_type: int, db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    importance = ['Essential', 'Have to have', 'Nice to have', 'Should not have']
+    account = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    if t_type == 1:
+        options = (
+        db.query(models.IncomeTypes)
+        .filter(models.IncomeTypes.owner_id == user.get("id"))
+        .all()
+        )
+    else:
+        options = (
+        db.query(models.ExpenseTypes)
+        .filter(models.ExpenseTypes.owner_id == user.get("id"))
+        .all()
+        )
+    return templates.TemplateResponse(
+        "add-transaction.html", {"request": request, "user": user, "importance": importance, "options": options, "t_type" : t_type, "account" : account}
+    )
+
+
+@router.post("/card/{card_id}/add-transaction/{t_type}", response_class=HTMLResponse)
+async def create_new_transaction(request: Request, card_id: int, t_type: int, db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    
+    
+

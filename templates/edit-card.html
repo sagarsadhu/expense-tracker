@@ -18,6 +18,7 @@
           <div class="form-group">
             <label>Card Type</label>
             <select class="form-control" name="card_type" required>
+              <option value="" selected disabled>Please select a card/account type</option>
               {% for cardtype in cardtypes %}
                 <option value="{{cardtype.id}}" {% if card.card_type == cardtype.id %} selected="selected" {% endif %}>{{cardtype.name}}</option>
               {% endfor %}
