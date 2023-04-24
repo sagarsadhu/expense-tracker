@@ -33,8 +33,7 @@
                     <td>{{income.description}}</td>
                     <td>{{income.amount}}</td>
                     <td>
-                        <button onclick="window.location.href='edit-card/{{card.id}}'" type="button" class="btn btn-primary">Edit</button>
-                        <button type="button" class="btn btn-info"><a style="text-decoration: none;color: white" href="/transactions/{{card.id}}"> Transactions </a></button>
+                        <button onclick="window.location.href='{{card_id}}/edit-income/{{income.id}}'" type="button" class="btn btn-primary">Edit</button>
                     </td>
                 </tr>
                 
@@ -91,7 +90,7 @@
                         <td>{{expense.description}}</td>
                         <td>{{expense.amount}}</td>
                         <td>
-                            <button onclick="window.location.href='edit-card/{{card.id}}'" type="button" class="btn btn-primary">Edit</button>
+                            <button onclick="window.location.href='{{card_id}}/edit-expense/{{expense.id}}'" type="button" class="btn btn-primary">Edit</button>
                             <button type="button" class="btn btn-info"><a style="text-decoration: none;color: white" href="/transactions/{{card.id}}"> Transactions </a></button>
                         </td>
                     </tr>

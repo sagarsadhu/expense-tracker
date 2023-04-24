@@ -1,0 +1,36 @@
+{% include 'layout.html' %}
+
+<div class="container">
+    <div class="card">
+      <div class="card-header">
+        Edit income details
+      </div>
+      <div class="card-body">
+        <form method="post">
+            <div class="form-group">
+                <label>Income Type</label>
+                <select class="form-control" name="t_type" required>
+                  <option value="" selected disabled>Please select a transaction type</option>
+                  {% for option in options %}
+                    <option value="{{option.id}}" {% if income.id == option.id %} selected="selected" {% endif %}>{{option.name}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" class="form-control" name="amount" step="any" value="{{income.amount}}"required>
+            </div>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" class="form-control" rows="3" required>{{income.description}}</textarea>
+            </div>
+          
+            
+            <button type="submit" class="btn btn-primary">Save Details</button>
+            <button onclick="window.location.href='transactions/card/{{account.id}}/delete-transaction/1'" type="button" class="btn btn-danger" >Delete income transaction</button>
+        </form>
+      </div>
+    </div>
+  </div>
