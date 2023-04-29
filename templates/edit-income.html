@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card">
       <div class="card-header">
-        Edit income details
+        Edit income transaction related to <b>{{ account.name }}</b> account 
       </div>
       <div class="card-body">
         <form method="post">
@@ -29,7 +29,7 @@
           
             
             <button type="submit" class="btn btn-primary">Save Details</button>
-            <button onclick="window.location.href='transactions/card/{{account.id}}/delete-transaction/1'" type="button" class="btn btn-danger" >Delete income transaction</button>
+            <button onclick="window.location.href='/transactions/card/{{account.id}}/delete-income/{{transaction_id}}'" type="button" class="btn btn-danger" >Delete income transaction</button>
         </form>
       </div>
     </div>

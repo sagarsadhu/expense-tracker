@@ -117,7 +117,7 @@ async def edit_income(request: Request, card_id: int, transaction_id: int, db: S
     )
     income = db.query(models.Incomes).filter(models.Incomes.account_id == card_id).filter(models.Incomes.id == transaction_id).first()
     return templates.TemplateResponse(
-        "edit-income.html", {"request": request, "user": user,  "options": options,"account" : account, "income": income }
+        "edit-income.html", {"request": request, "user": user,  "options": options,"account" : account, "income": income, "transaction_id": transaction_id }
     )
 
 
@@ -141,3 +141,22 @@ async def update_income(request: Request, card_id: int, transaction_id: int, t_t
     db.commit()
 
     return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
+
+@router.get("/card/{card_id}/delete-income/{transaction_id}", response_class=HTMLResponse)
+async def delete_income(request: Request, card_id: int, transaction_id: int,db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    
+    income_model = db.query(models.Incomes).filter(models.Incomes.account_id == card_id).filter(models.Incomes.id == transaction_id).first()
+    income_model.is_active = False
+    db.add(income_model)
+
+    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    account_model.balance -= income_model.amount
+    db.add(account_model)
+
+    db.commit()
+
+    return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
+
