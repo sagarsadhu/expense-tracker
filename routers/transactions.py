@@ -119,3 +119,25 @@ async def edit_income(request: Request, card_id: int, transaction_id: int, db: S
     return templates.TemplateResponse(
         "edit-income.html", {"request": request, "user": user,  "options": options,"account" : account, "income": income }
     )
+
+
+@router.post("/card/{card_id}/edit-income/{transaction_id}", response_class=HTMLResponse)
+async def update_income(request: Request, card_id: int, transaction_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...),db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    
+    income_model = db.query(models.Incomes).filter(models.Incomes.account_id == card_id).filter(models.Incomes.id == transaction_id).first()
+    income_model.amount = amount
+    income_model.description = description
+    income_model.t_type = t_type
+    income_model.modified_at = datetime.now()
+    db.add(income_model)
+
+    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    account_model.balance += amount
+    db.add(account_model)
+
+    db.commit()
+
+    return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
