@@ -160,3 +160,41 @@ async def delete_income(request: Request, card_id: int, transaction_id: int,db: 
 
     return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
 
+
+@router.get("/card/{card_id}/add-expense", response_class=HTMLResponse)
+async def add_new_expense(request: Request, card_id: int, db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    account = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    options = (
+    db.query(models.ExpenseTypes)
+    .filter(models.ExpenseTypes.owner_id == user.get("id"))
+    .all()
+    )
+    importance = ['Essential', 'Have to have', 'Nice to have', 'Should not have']
+    return templates.TemplateResponse(
+        "add-expense.html", {"request": request, "user": user,  "options": options,"account" : account, "importance": importance }
+    )
+
+
+@router.post("/card/{card_id}/add-expense", response_class=HTMLResponse)
+async def create_expense(request: Request, card_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...), db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    # adding income 
+    expense_model = models.Expenses()
+    expense_model.amount = amount
+    expense_model.description = description
+    expense_model.is_active = True
+    expense_model.t_type = t_type
+    expense_model.created_at = datetime.now()
+    expense_model.modified_at = datetime.now()
+    expense_model.owner_id = user.get("id")
+    expense_model.account_id = card_id
+
+    db.add(expense_model)
+    db.commit()
+
+    return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)

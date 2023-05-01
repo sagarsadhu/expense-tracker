@@ -3,7 +3,7 @@
 <div class="container">
   <div class="card">
     <div class="card-header">
-      Add an Income to <b>{{ account.name }}</b> Account
+      Add an Expense to <b>{{ account.name }}</b> Account
     </div>
     <div class="card-body">
       <form method="post">
@@ -23,7 +23,16 @@
           <label>Description</label>
           <textarea name="description" class="form-control" rows="3" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Add new income</button>
+        <div class="form-group">
+          <label>Importance</label>
+          <select class="form-control" name="importance" required>
+            <option value="" selected disabled>Please select</option>
+            {% for imp in importance %}
+              <option value="{{imp}}">{{imp}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Add new expense</button>
       </form>
     </div>
   </div>
