@@ -95,8 +95,12 @@ async def create_income(request: Request, card_id: int, t_type: int= Form(...), 
     income_model.modified_at = datetime.now()
     income_model.owner_id = user.get("id")
     income_model.account_id = card_id
-
     db.add(income_model)
+
+    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    account_model.balance += amount
+    db.add(account_model)
+
     db.commit()
 
     return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
@@ -128,15 +132,20 @@ async def update_income(request: Request, card_id: int, transaction_id: int, t_t
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     
     income_model = db.query(models.Incomes).filter(models.Incomes.account_id == card_id).filter(models.Incomes.id == transaction_id).first()
-    income_model.amount = amount
+    if income_model.amount != amount:
+        income_model.amount = amount
+        account_modify = True
+    else:
+        account_modify = False
     income_model.description = description
     income_model.t_type = t_type
     income_model.modified_at = datetime.now()
     db.add(income_model)
 
-    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
-    account_model.balance += amount
-    db.add(account_model)
+    if account_modify : 
+        account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+        account_model.balance += amount
+        db.add(account_model)
 
     db.commit()
 
