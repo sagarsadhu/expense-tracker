@@ -26,10 +26,10 @@
 
 
             <tbody>
-                {% for income in incomes %}
+                {% for income, income_type in incomes %}
                 <tr class="pointer">
                     <td>{{loop.index}}</td>
-                    <td>{{income.t_type}}</td>
+                    <td>{{income_type.name}}</td>
                     <td>{{income.description}}</td>
                     <td>{{income.amount}}</td>
                     <td>
@@ -77,21 +77,22 @@
                        <th scope="col">Expense Type</th>
                        <th scope="col">Description</th>
                        <th scope="col">Amount</th>
+                       <th scope="col">Importance</th>
                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
     
     
                 <tbody>
-                    {% for expense in expenses %}
+                    {% for expense, expense_type in expenses %}
                     <tr class="pointer">
                         <td>{{loop.index}}</td>
-                        <td>{{expense.t_type}}</td>
+                        <td>{{expense_type.name}}</td>
                         <td>{{expense.description}}</td>
                         <td>{{expense.amount}}</td>
+                        <td>{{expense.importance}}</td>
                         <td>
                             <button onclick="window.location.href='{{card_id}}/edit-expense/{{expense.id}}'" type="button" class="btn btn-primary">Edit</button>
-                            <button type="button" class="btn btn-info"><a style="text-decoration: none;color: white" href="/transactions/{{card.id}}"> Transactions </a></button>
                         </td>
                     </tr>
                     

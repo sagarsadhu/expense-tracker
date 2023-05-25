@@ -38,19 +38,20 @@ async def read_all_by_user(
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
     incomes = (
-        db.query(models.Incomes)
+        db.query(models.Incomes, models.IncomeTypes).join(models.IncomeTypes)
         .filter(models.Incomes.account_id == card_id)
         .filter(models.Incomes.owner_id == user.get("id"))
         .filter(models.Incomes.is_active == True)
         .all()
     )
     expenses = (
-        db.query(models.Expenses)
+        db.query(models.Expenses, models.ExpenseTypes).join(models.ExpenseTypes)
         .filter(models.Expenses.account_id == card_id)
         .filter(models.Expenses.owner_id == user.get("id"))
         .filter(models.Expenses.is_active == True)
         .all()
     )
+
     return templates.TemplateResponse(
         "transactions.html",
         {
@@ -188,7 +189,7 @@ async def add_new_expense(request: Request, card_id: int, db: Session = Depends(
 
 
 @router.post("/card/{card_id}/add-expense", response_class=HTMLResponse)
-async def create_expense(request: Request, card_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...), db: Session = Depends(get_db)):
+async def create_expense(request: Request, card_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...), importance: str= Form(...),db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
@@ -198,12 +199,63 @@ async def create_expense(request: Request, card_id: int, t_type: int= Form(...),
     expense_model.description = description
     expense_model.is_active = True
     expense_model.t_type = t_type
+    expense_model.importance = importance
     expense_model.created_at = datetime.now()
     expense_model.modified_at = datetime.now()
     expense_model.owner_id = user.get("id")
     expense_model.account_id = card_id
 
     db.add(expense_model)
+
+    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    account_model.balance -= amount
+    db.add(account_model)
+
+    db.commit()
+
+    return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
+
+
+@router.post("/card/{card_id}/edit-expense/{transaction_id}", response_class=HTMLResponse)
+async def update_expense(request: Request, card_id: int, transaction_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...),db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    
+    expense_model = db.query(models.Expenses).filter(models.Expenses.account_id == card_id).filter(models.Expenses.id == transaction_id).first()
+    if expense_model.amount != amount:
+        expense_model.amount = amount
+        account_modify = True
+    else:
+        account_modify = False
+    expense_model.description = description
+    expense_model.t_type = t_type
+    expense_model.modified_at = datetime.now()
+    db.add(expense_model)
+
+    if account_modify : 
+        account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+        account_model.balance -= amount
+        db.add(account_model)
+
+    db.commit()
+
+    return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
+
+@router.get("/card/{card_id}/delete-expense/{transaction_id}", response_class=HTMLResponse)
+async def delete_expense(request: Request, card_id: int, transaction_id: int,db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    
+    expense_model = db.query(models.Expenses).filter(models.Expenses.account_id == card_id).filter(models.Expenses.id == transaction_id).first()
+    expense_model.is_active = False
+    db.add(expense_model)
+
+    account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    account_model.balance += expense_model.amount
+    db.add(account_model)
+
     db.commit()
 
     return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
