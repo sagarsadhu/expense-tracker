@@ -18,7 +18,9 @@ Expense types are sources of your expenditure. Mobile Bill, House Rent are few e
 
 Based on your account type, a card or account can be created in which you can add your expenses and incomes. You can add your own custom account/card from above Menu.
 
+## Transactions
+You can add transactions to your individual accounts like incomes or expenses. You can also edit those or delete them.
+
 ### pending things
 
-* Transactions
 * Analytics from transactions
