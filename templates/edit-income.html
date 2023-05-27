@@ -12,7 +12,7 @@
                 <select class="form-control" name="t_type" required>
                   <option value="" selected disabled>Please select a transaction type</option>
                   {% for option in options %}
-                    <option value="{{option.id}}" {% if income.id == option.id %} selected="selected" {% endif %}>{{option.name}}</option>
+                    <option value="{{option.id}}" {% if income.t_type == option.id %} selected="selected" {% endif %}>{{option.name}}</option>
                   {% endfor %}
                 </select>
               </div>

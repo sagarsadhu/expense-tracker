@@ -134,6 +134,7 @@ async def update_income(request: Request, card_id: int, transaction_id: int, t_t
     
     income_model = db.query(models.Incomes).filter(models.Incomes.account_id == card_id).filter(models.Incomes.id == transaction_id).first()
     if income_model.amount != amount:
+        income_diff = income_model.amount - amount
         income_model.amount = amount
         account_modify = True
     else:
@@ -145,7 +146,7 @@ async def update_income(request: Request, card_id: int, transaction_id: int, t_t
 
     if account_modify : 
         account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
-        account_model.balance += amount
+        account_model.balance -= income_diff
         db.add(account_model)
 
     db.commit()
@@ -215,6 +216,23 @@ async def create_expense(request: Request, card_id: int, t_type: int= Form(...),
 
     return RedirectResponse(url=f"/transactions/card/{card_id}", status_code=status.HTTP_302_FOUND)
 
+@router.get("/card/{card_id}/edit-expense/{transaction_id}", response_class=HTMLResponse)
+async def edit_income(request: Request, card_id: int, transaction_id: int, db: Session = Depends(get_db)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
+    importance = ['Essential', 'Have to have', 'Nice to have', 'Should not have']
+    account = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
+    options = (
+    db.query(models.ExpenseTypes)
+    .filter(models.ExpenseTypes.owner_id == user.get("id"))
+    .all()
+    )
+    expense = db.query(models.Expenses).filter(models.Expenses.account_id == card_id).filter(models.Expenses.id == transaction_id).first()
+    return templates.TemplateResponse(
+        "edit-expense.html", {"request": request, "user": user,  "options": options,"account" : account, "expense": expense, "importance": importance,"transaction_id": transaction_id }
+    )
+
 
 @router.post("/card/{card_id}/edit-expense/{transaction_id}", response_class=HTMLResponse)
 async def update_expense(request: Request, card_id: int, transaction_id: int, t_type: int= Form(...), amount: float= Form(...), description: str= Form(...),db: Session = Depends(get_db)):
@@ -224,6 +242,7 @@ async def update_expense(request: Request, card_id: int, transaction_id: int, t_
     
     expense_model = db.query(models.Expenses).filter(models.Expenses.account_id == card_id).filter(models.Expenses.id == transaction_id).first()
     if expense_model.amount != amount:
+        exp_diff = expense_model.amount - amount
         expense_model.amount = amount
         account_modify = True
     else:
@@ -235,7 +254,7 @@ async def update_expense(request: Request, card_id: int, transaction_id: int, t_
 
     if account_modify : 
         account_model = db.query(models.Accounts).filter(models.Accounts.id == card_id).first()
-        account_model.balance -= amount
+        account_model.balance += exp_diff
         db.add(account_model)
 
     db.commit()
