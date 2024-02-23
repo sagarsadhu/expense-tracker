@@ -51,7 +51,11 @@ async def add_new_card(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url="/auth", status_code=status.HTTP_302_FOUND)
-    cardtypes = db.query(models.AccountTypes).all()
+    cardtypes = (db.query(models.AccountTypes)
+        .filter(models.AccountTypes.owner_id == user.get("id"))
+        .filter(models.AccountTypes.is_active == True)
+        .all()
+    )
     return templates.TemplateResponse(
         "add-card.html", {"request": request, "user": user, "cardtypes": cardtypes}
     )
